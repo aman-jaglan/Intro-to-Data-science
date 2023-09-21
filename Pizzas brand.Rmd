@@ -1,0 +1,199 @@
+---
+title: "HW04_Jaglan_Aman"
+output: html_document
+date: "2023-09-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading the data file `Pizza.csv`.
+```{r}
+pizza = read.csv('pizza.csv', header = TRUE)
+str(pizza)
+```
+
+## Checking the number of observation in the data set.
+```{r}
+length(pizza)
+nrow(pizza)
+dim(pizza)
+
+```
+
+**As we getting result there are 9 columns and 300 rows in our dataset. And by using *length()* function I am getting the length of the dataset and by using *nrow*, I am getting the number of rows in the dataset and last function I used is *dim()*, which is giving both details of rows and columns**.
+
+## Now I am going to use *summary()* function to get the overview of the data.
+```{r}
+summary(pizza)
+```
+
+**For brand we can conclude that there are 300 characters in that column. let's try to use as.factor() to check what different we could see about this column.**
+
+## Converting Brand to a factor variable
+```{r}
+pizza$brand <- as.factor(pizza$brand)
+summary(pizza)
+```
+
+**Now as we converted brand column to a factor variable, we can clearly see the repetition of each character in dataset.**
+
+## Plotting graph to see the insites of the data.
+### Histogram for the value sodium.
+```{r}
+library(ggplot2)
+ggplot(data = pizza, aes(x = sodium)) +
+  geom_histogram(binwidth = 0.1, fill = "blue", color = "black", alpha = 0.5) +
+  labs(
+    title = "Histogram of value sodium",
+    x = "sodium",
+    y = "frequency"
+  )
+
+```
+
+**The graph represent the reverse J-shaped. So, we can conclude that most of the brands keeping the content of sodium low in there pizza. But there are some brands which are keeping sodium content high as on the tail, we can see some data which is not forming a perfect tail.**
+
+### Histogram for the value cal.
+```{r}
+ggplot(data = pizza, aes(x = cal)) +
+  geom_histogram(binwidth = 0.2, fill = "violet", color = "black", alpha = 0.7) +
+  labs(
+    title = "Histogram of value cal",
+    x = "calories",
+    y = "frequency"
+  )
+```
+
+**The graph represent the bell shaped. So, we can conclude from this figure that there are very less pizzas in which we can find less and as well as excessive calories.**
+
+### Boxplot for the value sodium.
+```{r}
+ggplot(data = pizza, aes(y = sodium))+
+  geom_boxplot(fill = "skyblue", color = "black")+
+  labs(
+    title = "Boxplot of value sodium",
+    y = "sodium"
+  )
+```
+
+**In this graph the points that are seen on the outside of the whisker is the Outliers. That clearly means these values are significantly far from the median. Outliers can occur due to various reasons, including errors in data collection or measurement, or they could represent rare events or extreme conditions. As we seen in the histogram that on the tail side there is some data which significantly higher than the rest of the dataset here I think the outliers are representing the rare values.**
+
+### boxplot for the value calories
+```{r}
+ggplot(data = pizza, aes(y = cal))+
+  geom_boxplot(fill = "violet", color = "black")+
+  labs(
+    title = "Boxplot of value calories",
+    y = "calories"
+  )
+```
+
+**Same representation came for the calories as we concluded for the sodium.**
+
+### qqplot for the value sodium
+```{r}
+qqnorm(pizza$sodium, main = "QQ Plot for Sodium")
+qqline(pizza$sodium)
+```
+
+**As we can see in the graph we have both kinds of the values. First the one which is above from the line that represent that the data has heavier tails than the theoretical distribution and for the values which is lower than the deviation line suggest lighter tails. And the point you've seen with the higher deviation form the normal data it can indicate non-normality or another departure from the theoretical distribution.**
+
+## qqplot for the value cal
+```{r}
+qqnorm(pizza$cal, main = "QQ plot for calories")
+qqline(pizza$cal)
+```
+
+**As we are seeing in the graph, unlike in the sodium graph very less data have match between our quantiles and the quantiles of the theoretical distribution. This can be seen by how much data lies on the diagonal line. Whereas in this graph most of the data lies on the line.**
+
+## scatterplot between sodium vs cal by brand
+```{r}
+ggplot(data = pizza, aes(x = sodium, y = cal, color = brand)) +
+  geom_point(size = 3) +  # Increase point size
+  theme_minimal() +  # Apply a minimal theme
+  labs(
+    title = "Scatterplot of Sodium vs. Calories by Brand",
+    x = "Sodium",
+    y = "Calories"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),  # Center title
+    axis.title = element_text(size = 14),  # Adjust axis label size
+    axis.text = element_text(size = 12)  # Adjust axis tick label size
+  )
+```
+
+**In this scatter plot there is one interesting thing. As the Brand A is only one who is selling the pizza which have high quantity of sodium and have high calories. Other brands are not contains that much of sodium in there pizzas and comparably have less calories.**
+
+## scatterplot between sodium and cal by prot
+```{r}
+ggplot(data = pizza, aes(x = sodium, y = cal, color = prot)) +
+  geom_point(size = 3) +  
+  theme_minimal() +  
+  labs(
+    title = "Scatterplot of Sodium vs. Calories by prot",
+    x = "Sodium",
+    y = "Calories"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16), 
+    axis.title = element_text(size = 14),  
+    axis.text = element_text(size = 12)  
+  )
+```
+
+**In this plot as well the same brand gives highest prot other then others pizzas brand.**
+
+## barplot between sodium and brand
+```{r}
+ggplot(data = pizza, aes(x = brand, y = sodium, fill = brand)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Sodium Content by Brand",
+    x = "Brand",
+    y = "Sodium"
+  ) +
+  scale_fill_manual(values = c("A" = "blue", "B" = "red", "C" = "green", "D" = "violet", "E" = "skyblue", "F" = "darkblue", "G" = "black", "H" = "darkgreen", "I" = "pink", "J" = "yellow")) +  # Custom brand colors
+  theme_minimal() +  
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),  
+    axis.title = element_text(size = 14),  
+    axis.text.x = element_text(size = 12),  
+    axis.text.y = element_text(size = 10)   
+  )
+```
+
+**I choose bar's graph to have a comparison between two values. As we are seeing the clear representation of the sodium content putting by different brands in their pizza's. As we concluded from the previous scatter plot that, the brand who is putting the highest value of sodium in there pizzas. And the same representation we are getting in this graph and the highest amount of the sodium content by brand as well.**
+
+## Removing the outliers from the value sodium and cal.
+```{r}
+library(ezids)
+pizza2 = outlierKD2(pizza, sodium)
+pizza2 = outlierKD2(pizza, cal)
+```
+**From this representation of the histogram for value sodium. After removing outliers there is not much change in the graph, the only difference we can see on the tail of the graph.**
+**Same result we are getting for the value cal.**
+
+## QQ plot for the value sodium after removing outliers.
+```{r}
+qqnorm(pizza2$sodium, main = "QQ Plot for Sodium")
+qqline(pizza2$sodium)
+```
+
+**Doesn't create a noticeable difference.**
+
+## QQ plot for the value cal after removing outliers
+```{r}
+qqnorm(pizza2$cal, main = "QQ Plot for cal")
+qqline(pizza2$cal)
+```
+
+**Same result for the cal.**
+
+
+
+
+
+
