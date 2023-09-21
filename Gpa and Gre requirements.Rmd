@@ -1,0 +1,163 @@
+---
+title: "HW5_Jaglan_Aman"
+output: html_document
+date: "2023-09-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## First We need to import the data set.
+
+```{r}
+logadmit = read.csv('LogRegAdmit.csv', header = TRUE)
+summary(logadmit)
+```
+
+## Acoording to our requirement we need to convert the two variables admit and rank as factor.
+
+```{r}
+logadmit$admit <- as.factor(logadmit$admit)
+logadmit$rank <- as.factor(logadmit$rank)
+summary(logadmit)
+```
+
+## let's find the t-interval for gre.
+
+```{r}
+tgre <- t.test(logadmit$gre,conf.level = 0.85)
+print(tgre)
+```
+
+-   The mean of gre for confidence factor 85 is 587.7.
+
+## let's look into the t-interval for gpa.
+
+```{r}
+tgpa <- t.test(logadmit$gpa, conf.level = 0.99)
+print(tgpa)
+```
+
+-   The mean of gpa for confidence factor 99 is 3.389.
+    -   It's a interseting fact that for the confidence factor 85 and 99 we are getting the same mean.
+    -   The interval for both the factor is also same.
+    -   This refers that for this sample size the standard deviation is small. Most of the student gpa is close to the mean.
+
+## creating a subset according to the admit and reject.
+
+```{r}
+gotadmit <- logadmit[logadmit$admit == 1,]
+gotrejected <- logadmit[logadmit$admit == 0,]
+```
+
+## let's look into the t-intervel for gre for admitted and rejected students.
+
+```{r}
+print(t.test(gotadmit$gre,conf.level = 0.80))
+print(t.test(gotrejected$gre,conf.level = 0.80))
+```
+
+-   Now, I created two subsets one is for admitted students and one is for the rejected students.
+    -   And tried to find the t-interval for gre for both subsets .
+    -   For the first observation I put the confidence factor 80 for admitted students and getting the mean 618.89.
+    -   For the second observation confidence factor is 80 for rejected students and getting the mean 573.186.
+    -   For this sample size we can clearly see that the mean of admitted student is more than rejected students.
+    -   For now, we can say that the higher scored gre student getting selected for universities.
+
+## let's try the same data by putting the confidence factor 0.99.
+
+```{r}
+print(t.test(gotadmit$gre,conf.level = 0.99))
+print(t.test(gotrejected$gre,conf.level = 0.99))
+```
+
+-   The same thing happens with gre as we have seen with gpa that the mean and the interval doesn't change with the confidence factor.
+
+## let's draw a Boxplot for the admitted student.
+
+```{r}
+library(ggplot2)
+ggplot(gotadmit,aes(x = rank, y = gre,fill = rank))+
+  geom_boxplot()+
+  labs(
+    x = "Ranks",
+    y = "Gre score"
+  )+
+  scale_fill_discrete(name = "rank")+
+  theme_minimal()
+```
+
+-   The IQR range for the first university is more. But the median for all the universities is some how lies on the same range.
+    -   Most of students got admitted to these universities have small standard deviation of gre score.
+
+## let's draw a Boxplot for the rejected student.
+
+```{r}
+ggplot(gotrejected, aes(x = rank, y = gre, fill = rank))+
+  geom_boxplot()+
+  labs(
+    x = "rank",
+    y = "Gre Score"
+  )+
+  scale_fill_discrete(name = "rank")+
+  theme_minimal()
+```
+
+-   Now, for the rejected students the median of IQR is less than 600 and the highest value of IQR is also less than the admitted students.
+    -   we can conclude from both the result that having a lower gre is bad for anyone to get into good university.
+    -   But not individualy the gre plays the role for admission. because from the above plot we can see that there are some students who have the same gre score or even higher but not selected.
+    -   So, we can conclude that there are more factors than gre for getting admit.
+
+## let's take a look on the gpa for the admitted student.
+
+```{r}
+print(t.test(gotadmit$gpa,conf.level = 0.80))
+print(t.test(gotrejected$gpa,conf.level = 0.80))
+```
+
+## let's try the same t-interval for confidance factor 0.90.
+
+```{r}
+print(t.test(gotadmit$gpa,conf.level = 0.99))
+print(t.test(gotrejected$gpa,conf.level = 0.99))
+```
+
+-   There is differnce between the range of admitted students to rejected students and there is no overlapping of the data.
+    -   Means students who are having higher gpa are getting admitted.
+
+## let's draw the box plot for the above gpa observation for admitted students.
+
+```{r}
+ggplot(gotadmit,aes(x = rank, y = gpa,fill = rank))+
+  geom_boxplot()+
+  labs(
+    x = "Ranks",
+    y = "Gpa"
+  )+
+  scale_fill_discrete(name = "rank")+
+  theme_minimal()
+```
+
+## let's draw the box plot for the above gpa observation for rejected students.
+
+```{r}
+ggplot(gotrejected,aes(x = rank, y = gpa,fill = rank))+
+  geom_boxplot()+
+  labs(
+    x = "Ranks",
+    y = "Gpa"
+  )+
+  scale_fill_discrete(name = "rank")+
+  theme_minimal()
+```
+
+-   In both the boxplots the IQR for every ranked university is approximately same.
+    -   As we found before the standard deviation for gpa is small.
+    -   And we can see there are some students who have higher gpa and got rejected. maybe the reason of getting rejected even after having high gpa is the low gre score.
+
+## Summary
+
+**Based on our sample data, it's clear that admitted and rejected students have distinct ranges for their GPAs and GRE scores. Both groups don't overlap much in terms of these scores. Additionally, the fact that we're getting similar score ranges for different confidence levels suggests that the standard deviation is relatively low.**
+
+**If you have a high GPA and a good GRE score, your chances of getting admitted to these universities seem higher than for students with lower scores. However, it's essential to note that there are likely other factors at play that influence admission decisions. This is why some students with strong scores may still get rejected---admissions are influenced by multiple factors beyond just GPA and GRE scores.**
