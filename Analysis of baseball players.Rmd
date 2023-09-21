@@ -1,0 +1,162 @@
+title: "HW 3: R and RMarkdown Basics"
+author: "Aman Jaglan"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    number_sections: false
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+    
+
+# Read-in the data
+First I am going to read the csv file by using read.csv function from my local directory.
+
+```{r}
+baseball = read.csv("BaseballHeightWeight.csv", header = TRUE)
+str(baseball)
+```
+# Quick look at the data frame.
+
+```{r}
+head(baseball, n=5)
+tail(baseball,n=3)
+```
+# Change variable/column names.
+
+```{r}
+colnames(baseball)[4] <- "height"
+colnames(baseball)[5] <- "weight"
+colnames(baseball)[6] <- "age"
+```
+
+# Quick look at the modified data frame.
+
+```{r}
+head(baseball, n=2)
+```
+
+# Summary statistics.
+
+```{r}
+library(ezids)
+players <- baseball[,c("height","weight","age")]
+str(players)
+```
+```{r}
+summary(players)
+```
+Now the dataset is contains some null values that's why the xkablesummary is not working it's giving error. first we need to get rid of the null values then we can use xkablesummary for gettting summary.
+Until we clean our dataset we can use summary to get the overview of the dataset.
+
+# Selecting observations with missing values.
+```{r}
+subset(players, is.na(weight))
+
+```
+As we can see there are only one row which contains null value.
+
+# Defining a subset.
+```{r}
+players <- subset(players, !is.na(weight))
+nrow(players)
+```
+There are 1033 observation left after cleaning the na values from weight data set.
+
+```{r}
+xkablesummary(players)
+```
+
+Now, we cleaned out the dataset there is no more null values. we can use the xkablesummary function for getting the overview of the dataset.
+
+# Boxplot for continuous variable.
+
+```{r}
+boxplot(
+  players$weight,
+  main = "Box plot of Players Weight",
+  xlab = "Players",
+  ylab = "Weight",
+  border = "blue",
+  horizontal = TRUE
+  )
+```
+
+# ggplot for the same observation
+For using ggplot first we need to install ggplot2 package.Then we can use the ggplot function for plotting graphs.
+```{r}
+library("ggplot2")
+ggplot(data = players, aes(x = "", y = weight)) +
+   geom_boxplot(fill = "lightblue") +
+   labs(title = "Boxplot of Players Weight",
+       x = "",
+       y = "Weight")
+```
+
+I would prefer ggplot. because I get lot's of option for visualizing a data.
+
+# Histogram for continuous variable.
+First plot is drwan by using the hist function.
+```{r}
+hist(players$weight, 
+     main = "Histogram of Players Weight",
+     xlab = "weight",
+     ylab = "Frequency",
+     col = "lightblue")
+```
+
+The histogram created using the base R hist function shows a distribution of player weights. In this example, the histogram has a roughly symmetrical shape, with a peak around the middle values of the weight range. It resembles a normal distribution, although it's not perfectly symmetric. There are fewer observations on the higher end of the weight range, resulting in a slightly right-skewed tail.
+
+
+```{r}
+ggplot(data = players, aes(x = weight)) +
+  geom_histogram(fill = "lightblue", binwidth = 10) +
+  labs(title = "Histogram of Players Weight",
+       x = "weight",
+       y = "Frequency")
+```
+
+The histogram created using ggplot2 also shows the distribution of player weights. It has a similar shape to the base R histogram, with a peak around the middle values. The distribution appears to be slightly right-skewed, with a longer tail on the right side of the peak. This indicates that there are fewer players with very higher weights compared to those with less weights.
+
+
+# Scatterplot for two continuous variables by a categorical variable.
+
+```{r}
+ggplot(data = baseball, aes(x = height, y = weight, color = Team)) +
+  geom_point() +
+  labs(title = "Players Weight vs. Height",
+       x = "height",
+       y = "weight")
+```
+
+# Scatterplot for two continuous variables by a continuous variable.
+```{r}
+ggplot(data = baseball, aes(x = height, y = weight, color = age)) +
+  geom_point() +
+  labs(title = "Players Weight vs. Height",
+       x = "height",
+       y = "weight")
+```
+
+# Defining a subset.
+```{r}
+WashingtonPlayers <- subset(baseball, Team == "WAS")
+str(WashingtonPlayers)
+```
+There are total 36 players in Team Washington.
+
+# Defining a subset.
+```{r}
+experiencedTeam <- subset(WashingtonPlayers, age > 28)
+str(experiencedTeam)
+```
+There are 14 players in the Team Washington whose age is greater than 28.
+
+
+
+
+
