@@ -1,0 +1,234 @@
+---
+title: "HW 6: Hypothesis Tests"
+author: "Aman Jaglan"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+    number_sections: false
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+# Some of common RMD options (and the defaults) are: 
+# include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
+knitr::opts_chunk$set(warning = F, message = F)
+# Can globally set option for number display format.
+options(scientific=T, digits = 3) 
+# options(scipen=9, digits = 3) 
+```
+
+# Question 1
+
+**Import the dataset and make sure the data type for the variables are set properly as numeric or factor variables.**
+
+```{r}
+gradAdmit = read.csv('LogRegAdmit.csv', header = TRUE)
+summary(gradAdmit)
+```
+
+```{r}
+gradAdmit$admit = as.factor(gradAdmit$admit)
+gradAdmit$rank = as.factor(gradAdmit$rank)
+gradAdmit$gre = as.numeric(gradAdmit$gre)
+gradAdmit$gpa = as.numeric(gradAdmit$gpa)
+summary(gradAdmit)
+```
+
+# Question 2
+
+**Using the `outlierKD2()` function, identify and flag as NA the outliers for `gre` and `gpa`. Save the resulting data frame as a new data frame. This will require multiple lines of code -- you need to remove outliers for one variable at a time. How many NA values are in `gre` and in `gpa`?**
+
+```{r}
+library(ezids)
+df <- outlierKD2(gradAdmit,gre,TRUE)
+count <- sum(is.na(df$gre))
+print(count)
+
+
+```
+
+```{r}
+df <- outlierKD2(df,gpa,TRUE)
+count<- sum(is.na(df$gpa))
+print(count)
+```
+
+**There are 4 Na values in GRE and there is 1 NA value in GPA.**
+
+```{r}
+df <- na.omit(df)
+print(nrow(df))
+```
+
+# Question 3
+
+**Separate the data frame created in Q2 into two subsets: one for admitted and one for rejected.**
+
+```{r}
+admitted <- subset(df, admit == 1)
+summary(admitted)
+rejected <- subset(df, admit == 0)
+summary(rejected)
+```
+
+# Question 4
+
+**Now check for normality on the numerical variables. Produce histograms (use `ggplot()`) and QQ-plots (use `qqnorm()`) to check the distributions of the quantitative variables for the admitted and rejected subsets. Make a brief comment on the results.**
+
+```{r}
+library(ggplot2)
+ggplot(admitted,aes(x = gre))+
+  geom_histogram(fill = 'skyblue',color = 'black',binwidth = 30)+
+  labs(title = "Gre score of admitted students",
+       x = "GRE Score",
+       y = "Frequency"
+       )
+```
+
+```{r}
+ggplot(admitted,aes(x = gpa))+
+  geom_histogram(fill = 'violet',color = 'black',binwidth = 0.1)+
+  labs(title = "GPA score of admitted students",
+       x = "GPA Score",
+       y = "Frequency"
+       )
+```
+
+```{r}
+qqnorm(admitted$gre, main = "QQ plot for admitted students gre score ")
+qqline(admitted$gre)
+```
+
+**In this graph most of the points are following the diagonal line but at the ends it deviate upwards it means the data has heavier tail the same result we can see on the histogram it has peak on the right side it suggest most of the admitted student has more gre score close to 700.**
+
+```{r}
+qqnorm(admitted$gpa, main = "QQ plot for admitted students gpa score ")
+qqline(admitted$gpa)
+```
+
+**In this graph most of the points are not following the diagonal line mostly they are deviating upwards from the diagonal line it means the data has heavier tail as we can see on the histogram it has peak on the right side it suggest most of the admitted student has more gpa score close to 4.0.**
+
+
+```{r}
+ggplot(rejected,aes(x = gre))+
+  geom_histogram(fill = 'skyblue',color = 'black',binwidth = 30)+
+  labs(title = "Gre score of rejected students",
+       x = "GRE Score",
+       y = "Frequency"
+       )
+```
+
+```{r}
+ggplot(rejected,aes(x = gpa))+
+  geom_histogram(fill = 'violet',color = 'black',binwidth = 0.1)+
+  labs(title = "GPA score of rejected students",
+       x = "GPA Score",
+       y = "Frequency"
+       )
+```
+
+```{r}
+qqnorm(rejected$gre, main = "QQ plot for rejected students gre score ")
+qqline(rejected$gre)
+```
+
+**In this qq plot for rejected students the points are following the diagonal line and at the end it deviates downwards that means this graph has less heavier tail and as we can see in the histogram that the gre score for rejected student are divided over the range 400 to 800.**
+
+```{r}
+qqnorm(rejected$gpa, main = "QQ plot for rejected students gpa score ")
+qqline(rejected$gpa)
+
+```
+
+**In this qq plot for rejected students the points are following the diagonal line in a non-linear way and at the end it deviates upwards that means this graph has heavier tail and as we can see in the histogram that the gpa score for rejected student have peak score in between 3.0 to 3.5 and then as we proceed towards 4.0 there are around 20 students which are having score 4.0 which make the tail heavier and the same result reflected in the qqplot.**
+
+# Question 5
+
+**Do the two subsets have different `gre` averages and `gpa` averages? Use the standard $\alpha$ = 0.05.
+Be sure to state the null and alternative hypotheses, p-values, and conclusions from the tests.**
+
+```{r}
+tAdmit <- t.test(admitted$gre, rejected$gre)
+print(tAdmit$p.value)
+```
+
+**NULL Hypotheses -\> the mean of admitted gre and rejected gre student is equal.** 
+**ALTERNATIVE Hypotheses -\> the mean of admitted gre and rejected gre student is not equal.** 
+**P-value = 0.00168** 
+**The p-value comes form the analysis is 0.000618 which is less than the chosen significance value.** 
+**So, We can state from this analysis that the average of admitted gre and average of rejected gre students is not same.**
+
+```{r}
+tAdmit <- t.test(admitted$gpa, rejected$gpa)
+print(tAdmit$p.value)
+```
+
+**NULL Hypotheses -\> the mean of admitted gpa and rejected gpa student is equal.** 
+**ALTERNATIVE Hypotheses -\> the mean of admitted gpa and rejected gpa student is not equal.**
+**P-value = 0.000431** 
+**The p-value comes form the analysis is 0.000431 which is less than the chosen significance value.** 
+**So, We can state from this analysis that the average of admitted gpa and average of rejected gpa students is not same.**
+
+# Question 6
+
+**Using the dataset from Q2, construct a contingency table between `rank` and `admit`. Are these two variables qualitative or quantitative?**
+
+```{r}
+c_table <-table(df$rank,df$admit)
+print(c_table)
+```
+
+**These two variables are --qunatitative variables--, because the admit represent the numbers of students got admitted and rejected for a specific universities.**
+
+# Question 7
+
+**Carry out a test to determine if `rank` and `admit` are independent, according to the contingency table above. Use the standard** $\alpha$ = 0.05.
+Be sure to state the null and alternative hypothesis, p-value, and conclusions from the test.
+
+```{r}
+c_test <- chisq.test(c_table)
+print(c_test)
+formatted_Value <- sprintf("%.5f",c_test$p.value)
+print(formatted_Value)
+```
+
+**NULL Hypotheses -\> the column rank and admit both are independent.** 
+**ALTERNATIVE Hypotheses -\> the column rank and admit both are not independent.** 
+**P-value = 0.00003** 
+**The p-value comes form the analysis is 0.00003 which is less than the chosen significance value.** 
+**So, We can state from this analysis that the these both column are not independent.**
+
+# Question 8
+
+**Using the dataset from Q2, test whether students from the four ranks have the same average `gre` or not. And also test if they have the same average `gpa` or not. Be sure to state the null and alternative hypotheses, p-values, and conclusions from the tests. Remember that if they are not all the same, you will need to follow up with a post hoc test. Make brief comments on your results.**
+
+```{r}
+library(stats)
+a_test <- aov(gre ~ rank, data = df)
+print(summary(a_test)[[1]][["Pr(>F)"]])
+```
+
+
+**NULL Hypotheses -\> the students from the four ranks have the same average `gre` .** 
+**ALTERNATIVE Hypotheses -\> the students from the four ranks have not the same average `gre`.** 
+**P-value = 0.179** 
+**The p-value comes form the analysis is 0.179 which is greater than the chosen significance value.** 
+**So, We can state from this analysis that students from the four ranks have the same average `gre` we can not ignore our null hypotheses**
+
+
+```{r}
+a_test <- aov(gpa ~ rank, data = df)
+print(summary(a_test)[[1]][["Pr(>F)"]])
+```
+
+**NULL Hypotheses -\> the students from the four ranks have the same average `gpa`.** 
+**ALTERNATIVE Hypotheses -\> the students from the four ranks have not the same average `gpa`** 
+**P-value = 0.134** 
+**The p-value comes form the analysis is 0.134 which is greater than the chosen significance value.** 
+**So, We can state from this analysis that students from the four ranks have the same average `gpa` we can not ignore our null hypotheses**
